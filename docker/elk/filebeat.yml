@@ -1,0 +1,35 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*
+  tags: [ "nginx" ]
+  json:
+    keys_under_root: true
+    add_error_key: true
+
+- type: log
+  enabled: true
+  paths:
+    - /usr/share/filebeat/logs/apps/auth/*
+  tags: [ "auth" ]
+  json:
+    keys_under_root: true
+    add_error_key: true
+
+- type: log
+  enabled: true
+  paths:
+    - /usr/share/filebeat/logs/apps/ugc_api/*
+  tags: [ "ugc_api" ]
+  json:
+    keys_under_root: true
+    add_error_key: true
+
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"]
+
+processors:
+  - add_docker_metadata:
+      host: "unix:///host_docker/docker.sock"
