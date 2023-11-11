@@ -1,6 +1,9 @@
 # UGC Service (Sprint 9)
 
-**[Link to the project to be reviewed](https://github.com/alena-kono/ugc-service-2)**
+**[Link to the project to be reviewed](https://github.com/alena-kono/notifications_sprint_1)**
+
+## Email-worker 
+Check the documentation [here](backend/apps/email_worker/README.md)
 
 ## Analytical db research
 Find more information about the experiment [here](backend/research/clickhouse_vs_vertica/clickhouse_vs_vertica.ipynb)
