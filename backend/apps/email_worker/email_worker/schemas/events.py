@@ -1,11 +1,16 @@
-from uuid import UUID
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
-
-class EventSchema(BaseModel):
-    user_id: UUID
+SchemaType = TypeVar("SchemaType", bound=BaseModel)
 
 
-class WelcomeEventSchema(EventSchema):
-    ...
+class EventSchema(BaseModel, Generic[SchemaType]):
+    email_from: str
+    email_to: str
+    email_subject: str
+    content: SchemaType
+
+
+class WelcomeContentSchema(BaseModel):
+    username: str

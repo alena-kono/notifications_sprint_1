@@ -21,6 +21,7 @@ faststream = {extras = ["rabbit"], version = "^0.2.12"}
 aiosmtpd = "^1.4.4.post2"
 uvicorn = "^0.24.0.post1"
 fastapi = "^0.104.1"
+ipython = "^8.17.2"
 
 [build-system]
 requires = ["poetry-core"]

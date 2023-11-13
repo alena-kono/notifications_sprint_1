@@ -1,6 +1,7 @@
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.common import models
 from src.common.database import Base
 from src.social.models import SocialAccount  # noqa: F401
