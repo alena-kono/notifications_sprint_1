@@ -14,3 +14,11 @@ class EventSchema(BaseModel, Generic[SchemaType]):
 
 class WelcomeContentSchema(BaseModel):
     username: str
+
+
+class WeeklyUpdateContentSchema(BaseModel):
+    username: str
+
+    likes_count: int
+    comments_count: int
+    watched_films_count: int

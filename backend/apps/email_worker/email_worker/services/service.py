@@ -1,6 +1,8 @@
 import asyncio
 from abc import ABC, abstractmethod
 from email.message import EmailMessage
+from enum import StrEnum
+from typing import Callable
 
 from faststream import Depends
 from jinja2 import Template
@@ -8,6 +10,11 @@ from jinja2 import Template
 from email_worker.configs.jinja2 import get_template
 from email_worker.schemas.events import EventSchema
 from email_worker.utils.email_sender import IEmailSender, get_email_sender
+
+
+class ServiceType(StrEnum):
+    WELCOME = "welcome"
+    WEEKLY_UPDATE = "weekly-update"
 
 
 class IService(ABC):
@@ -41,10 +48,18 @@ class Service(IService):
             asyncio.gather(*tasks)
 
 
-def get_welcome_service(
-    email_sender: IEmailSender = Depends(get_email_sender),
-) -> Service:
-    return Service(
-        email_sender=email_sender,
-        template=get_template("welcome.html"),
-    )
+def service_factory(
+    service_type: ServiceType,
+) -> Callable[[IEmailSender], Service]:
+    template_map: dict[ServiceType, str] = {
+        ServiceType.WELCOME: "welcome.html",
+        ServiceType.WEEKLY_UPDATE: "weekly_update.html",
+    }
+
+    def _service(
+        email_sender: IEmailSender = Depends(get_email_sender),
+    ) -> Service:
+        template = get_template(template_map[service_type])
+        return Service(email_sender=email_sender, template=template)
+
+    return _service
