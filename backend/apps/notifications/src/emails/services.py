@@ -2,11 +2,16 @@ import enum
 from typing import Type, Callable
 
 import structlog
+from faststream import Depends
 from faststream.kafka.annotations import KafkaMessage
-from faststream.rabbit import RabbitBroker
 
-from src.common.brokers import get_rabbit_broker
-from src.common.services import NotificationService, IUserService, get_user_service
+from src.common.services import (
+    NotificationService,
+    IUserService,
+    get_user_service,
+    IMessageBrokerService,
+    get_message_broker_service,
+)
 from src.emails import dependencies as emails_deps
 from src.emails import schemas as emails_schemas
 
@@ -22,11 +27,11 @@ class EmailNotificationService(NotificationService):
     def __init__(
         self,
         user_service: IUserService,
-        broker: RabbitBroker,
+        message_broker_service: IMessageBrokerService,
         schema_cls: Type[emails_schemas.IEmail],
     ) -> None:
         super().__init__(user_service)
-        self.broker = broker
+        self.message_broker_service = message_broker_service
         self.schema_cls = schema_cls
 
     async def handle_events(
@@ -43,23 +48,8 @@ class EmailNotificationService(NotificationService):
                 if user.id == msg.user_id:
                     emails.append(self.schema_cls.create(user=user, event_message=msg))
 
-        response_from_publisher = await self.broker.publish(
-            message=emails,
-            queue=queue_name,
-            # TODO: Setup exchange
-            # exchange=RabbitExchange(
-            #     name=queue_name,
-            #     type=ExchangeType.DIRECT,
-            #     routing_key="",
-            # ),
-        )
-
-        await logger.info(
-            "Message has been published to RabbitMQ",
-            message_id=msg_context.message_id,
-            message_payload=emails,
-            queue_name=queue_name,
-            response_from_publisher=response_from_publisher,
+        await self.message_broker_service.publish(
+            message_payload=emails, queue_name=queue_name
         )
 
         await msg_context.ack()
@@ -76,11 +66,14 @@ def email_service_factory(
         service_schema_type.weekly_update.value: emails_schemas.WeeklyUpdateEmail,
     }
 
-    def _service() -> EmailNotificationService:
+    def _service(
+        user_service=Depends(get_user_service),
+        message_broker_service=Depends(get_message_broker_service),
+    ) -> EmailNotificationService:
         if matching_schema := schemas_mapping.get(service_schema_type.value):
             return EmailNotificationService(
-                user_service=get_user_service(),
-                broker=get_rabbit_broker(),
+                user_service=user_service,
+                message_broker_service=message_broker_service,
                 schema_cls=matching_schema,
             )
         raise NotImplementedError
