@@ -69,7 +69,6 @@ async def email_welcome_event_handler(
         email_service_factory(EmailServiceSchemaType.welcome)
     ),
 ) -> None:
-
     await logger.info(
         "Message has been consumed from Kafka",
         topic_name=settings.notification.email_welcome_topic_name,
