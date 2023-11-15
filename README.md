@@ -1,6 +1,9 @@
-# UGC Service (Sprint 9)
+# Notifications Service (Sprint 10)
 
 **[Link to the project to be reviewed](https://github.com/alena-kono/notifications_sprint_1)**
+
+## Notifications service
+Check the documentation [here](backend/apps/notifications/README.md)
 
 ## Email-worker 
 Check the documentation [here](backend/apps/email_worker/README.md)
