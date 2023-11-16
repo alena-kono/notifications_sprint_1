@@ -16,5 +16,5 @@
 4. Run Notifications service:
     ``` bash
     # under the poetry virtual env
-    faststream run src.main:app
+    python -m src.main
     ```
