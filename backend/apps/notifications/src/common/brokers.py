@@ -1,7 +1,10 @@
+import structlog
+
 from faststream.kafka import KafkaBroker
 from faststream.rabbit import RabbitBroker
-import structlog
+
 from src.settings.app import get_app_settings
+
 
 settings = get_app_settings()
 logger = structlog.get_logger()
