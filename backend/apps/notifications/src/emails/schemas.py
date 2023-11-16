@@ -13,9 +13,6 @@ class WelcomeContent(BaseModel):
 
 class WeeklyUpdateContent(BaseModel):
     username: str
-
-    likes_count: int
-    comments_count: int
     watched_films_count: int
 
 
@@ -62,8 +59,6 @@ class WeeklyUpdateEmail(IEmail):
                 email_to=user.email,
                 content=WeeklyUpdateContent(
                     username=user.username,
-                    likes_count=event_message.likes_count,
-                    comments_count=event_message.comments_count,
                     watched_films_count=event_message.watched_films_count,
                 ),
             )
