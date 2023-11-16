@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Self
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from src.common import schemas as common_schemas
 from src.emails import dependencies as emails_deps
@@ -17,7 +17,8 @@ class WeeklyUpdateContent(BaseModel):
 
 
 class IEmail(BaseModel, ABC):
-    email_to: str
+    email_to: EmailStr
+    email_from: EmailStr
     content: dict
 
     @classmethod
@@ -31,6 +32,7 @@ class IEmail(BaseModel, ABC):
 
 
 class WelcomeEmail(IEmail):
+    email_from: EmailStr = "welcome@cinema-club.com"
     content: WelcomeContent
 
     @classmethod
@@ -46,6 +48,7 @@ class WelcomeEmail(IEmail):
 
 
 class WeeklyUpdateEmail(IEmail):
+    email_from: EmailStr = "no-reply@cinema-club.com"
     content: WeeklyUpdateContent
 
     @classmethod
