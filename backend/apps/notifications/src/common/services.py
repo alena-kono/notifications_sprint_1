@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 import structlog
 from faststream import Depends
@@ -66,7 +67,7 @@ def get_user_service() -> IUserService:
 
 class IMessageBrokerService(ABC):
     @abstractmethod
-    async def publish(self, message_payload: dict, queue_name: str) -> None:
+    async def publish(self, message_payload: Any, queue_name: str) -> None:
         ...
 
 
@@ -74,7 +75,7 @@ class RabbitMQMessageBrokerService(IMessageBrokerService):
     def __init__(self, broker: RabbitBroker) -> None:
         self.broker = broker
 
-    async def publish(self, message_payload: dict, queue_name: str) -> None:
+    async def publish(self, message_payload: Any, queue_name: str) -> None:
         response_from_publisher = await self.broker.publish(
             message=message_payload,
             queue=queue_name,
