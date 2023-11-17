@@ -1,9 +1,7 @@
 import asyncio
-
 from logging import config as logging_config
 
 import structlog
-
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker
 
@@ -11,7 +9,7 @@ from src.common import brokers
 from src.emails.api.v1.router import router as email_router
 from src.settings.app import get_app_settings
 from src.settings.logging import configure_logger
-
+from src.websockets.api.v1.router import router as ws_router
 
 settings = get_app_settings()
 
@@ -57,6 +55,7 @@ async def on_shutdown() -> None:
 
 
 broker.include_router(email_router)
+broker.include_router(ws_router)
 
 
 if __name__ == "__main__":

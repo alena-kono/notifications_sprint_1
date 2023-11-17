@@ -29,6 +29,7 @@ async def create_rabbit_queues() -> None:
     queues_to_declare = (
         settings.notification.email_welcome_queue_name,
         settings.notification.email_weekly_update_queue_name,
+        settings.notification.ws_like_queue_name,
     )
     for queue_name in queues_to_declare:
         await broker_rabbit.declare_queue(queue=RabbitQueue(queue_name))
