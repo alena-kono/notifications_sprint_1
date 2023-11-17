@@ -1,6 +1,6 @@
 import structlog
 from faststream.kafka import KafkaBroker
-from faststream.rabbit import RabbitBroker, RabbitQueue
+from faststream.rabbit import RabbitBroker, RabbitQueue, RabbitExchange, ExchangeType
 
 from src.settings.app import get_app_settings
 
@@ -32,3 +32,13 @@ async def create_rabbit_queues() -> None:
     )
     for queue_name in queues_to_declare:
         await broker_rabbit.declare_queue(queue=RabbitQueue(queue_name))
+
+
+async def declare_rabbit_exchange() -> None:
+    await broker_rabbit.declare_exchange(
+        exchange=RabbitExchange(
+            name="notifications",
+            type=ExchangeType.DIRECT,
+            routing_key="",
+        )
+    )

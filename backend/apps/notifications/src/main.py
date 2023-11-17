@@ -44,6 +44,7 @@ async def on_startup() -> None:
 
     await brokers.broker_rabbit.connect()
     await brokers.create_rabbit_queues()
+    await brokers.declare_rabbit_exchange()
 
 
 @app.on_shutdown
