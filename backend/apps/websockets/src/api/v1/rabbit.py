@@ -18,7 +18,7 @@ rabbit_router = RabbitRouter(
 )
 
 
-@rabbit_router.subscriber("like-event")
+@rabbit_router.subscriber("ws-like-queue")
 async def like_event_handler(
     like_event: InLikeEventSchema,
     service: IRabbitMQService = Depends(get_rabbitmq_service),

@@ -13,7 +13,7 @@ router = RabbitRouter()
 settings = get_settings()
 
 
-@router.subscriber("welcome-event")
+@router.subscriber("email-welcome-queue")
 async def welcome_handler(
     welcome_event: list[EventSchema[WelcomeContentSchema]],
     service: Service = Depends(service_factory(ServiceType.WELCOME)),
@@ -21,7 +21,7 @@ async def welcome_handler(
     await service.handle_event(welcome_event)
 
 
-@router.subscriber("weekly-update-event")
+@router.subscriber("email-weekly-update-queue")
 async def weekly_update_handler(
     welcome_event: list[EventSchema[WeeklyUpdateContentSchema]],
     service: Service = Depends(service_factory(ServiceType.WEEKLY_UPDATE)),

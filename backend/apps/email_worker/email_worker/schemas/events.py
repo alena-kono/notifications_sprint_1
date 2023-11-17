@@ -17,7 +17,4 @@ class WelcomeContentSchema(BaseModel):
 
 class WeeklyUpdateContentSchema(BaseModel):
     username: str
-
-    likes_count: int
-    comments_count: int
     watched_films_count: int

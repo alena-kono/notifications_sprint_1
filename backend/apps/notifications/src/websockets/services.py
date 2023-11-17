@@ -1,19 +1,22 @@
 import enum
-from typing import Type, Callable
+
+from typing import Callable, Type
 
 import structlog
+
 from faststream import Depends
 from faststream.kafka.annotations import KafkaMessage
 
 from src.common import dependencies as common_deps
 from src.common.services import (
-    NotificationService,
-    IUserService,
-    get_user_service,
     IMessageBrokerService,
+    IUserService,
+    NotificationService,
     get_message_broker_service,
+    get_user_service,
 )
 from src.websockets import schemas as ws_schemas
+
 
 logger = structlog.get_logger()
 
