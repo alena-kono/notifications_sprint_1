@@ -1,10 +1,8 @@
 import structlog
-
 from faststream.kafka import KafkaBroker
-from faststream.rabbit import RabbitBroker
+from faststream.rabbit import RabbitBroker, RabbitQueue
 
 from src.settings.app import get_app_settings
-
 
 settings = get_app_settings()
 logger = structlog.get_logger()
@@ -25,3 +23,12 @@ def get_rabbit_broker() -> RabbitBroker:
         raise RuntimeError("RabbitMQ broker has not been defined.")
 
     return broker_rabbit
+
+
+async def create_rabbit_queues() -> None:
+    queues_to_declare = (
+        settings.notification.email_welcome_queue_name,
+        settings.notification.email_weekly_update_queue_name,
+    )
+    for queue_name in queues_to_declare:
+        await broker_rabbit.declare_queue(queue=RabbitQueue(queue_name))

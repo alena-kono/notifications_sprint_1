@@ -41,7 +41,9 @@ async def on_startup() -> None:
         virtualhost=settings.rabbitmq.vhost,
     )
     await brokers.broker_kafka.connect()
+
     await brokers.broker_rabbit.connect()
+    await brokers.create_rabbit_queues()
 
 
 @app.on_shutdown
