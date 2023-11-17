@@ -83,13 +83,7 @@ class RabbitMQMessageBrokerService(IMessageBrokerService):
     async def publish(self, message_payload: Any, queue_name: str) -> None:
         response_from_publisher = await self.broker.publish(
             message=message_payload,
-            queue=queue_name,
-            # TODO: Setup exchange
-            # exchange=RabbitExchange(
-            #     name=queue_name,
-            #     type=ExchangeType.DIRECT,
-            #     routing_key="",
-            # ),
+            queue=queue_name
         )
 
         await logger.info(
