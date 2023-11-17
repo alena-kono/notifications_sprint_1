@@ -5,6 +5,7 @@ import structlog
 from faststream import Depends
 from faststream.kafka.annotations import KafkaMessage
 
+from src.common import dependencies as common_deps
 from src.common.services import (
     NotificationService,
     IUserService,
@@ -12,7 +13,6 @@ from src.common.services import (
     IMessageBrokerService,
     get_message_broker_service,
 )
-from src.emails import dependencies as emails_deps
 from src.emails import schemas as emails_schemas
 
 logger = structlog.get_logger()
@@ -36,7 +36,7 @@ class EmailNotificationService(NotificationService):
 
     async def handle_events(
         self,
-        event_messages: list[emails_deps.EventMessageType],
+        event_messages: list[common_deps.EventMessage],
         queue_name: str,
         msg_context: KafkaMessage,
     ) -> None:

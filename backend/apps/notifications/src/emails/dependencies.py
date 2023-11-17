@@ -1,14 +1,10 @@
-from typing import Generic, TypeVar
-
-from pydantic import BaseModel
-
-EventMessageType = TypeVar("EventMessageType", bound=BaseModel)
+from src.common import dependencies as common_deps
 
 
-class WelcomeEventMessage(BaseModel, Generic[EventMessageType]):
+class WelcomeEventMessage(common_deps.EventMessage):
     user_id: str
 
 
-class WeeklyUpdateMessage(BaseModel, Generic[EventMessageType]):
+class WeeklyUpdateMessage(common_deps.EventMessage):
     user_id: str
     watched_films_count: int

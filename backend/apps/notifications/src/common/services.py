@@ -3,8 +3,10 @@ from typing import Any
 
 import structlog
 from faststream import Depends
+from faststream.kafka.annotations import KafkaMessage
 from faststream.rabbit import RabbitBroker
 
+from src.common import dependencies as common_deps
 from src.common import schemas as common_schemas
 from src.common.brokers import get_rabbit_broker
 
@@ -42,7 +44,12 @@ class UserService(IUserService):
 
 class INotificationService(ABC):
     @abstractmethod
-    async def handle_event(self, event):
+    async def handle_events(
+        self,
+        event_messages: list[common_deps.EventMessage],
+        queue_name: str,
+        msg_context: KafkaMessage,
+    ) -> None:
         ...
 
 
@@ -50,7 +57,12 @@ class NotificationService(INotificationService):
     def __init__(self, user_service: IUserService) -> None:
         self.user_service = user_service
 
-    async def handle_event(self, event):
+    async def handle_events(
+        self,
+        event_messages: list[common_deps.EventMessage],
+        queue_name: str,
+        msg_context: KafkaMessage,
+    ) -> None:
         ...
 
 

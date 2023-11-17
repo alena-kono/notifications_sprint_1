@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Self
+from typing import Self
 
 from pydantic import BaseModel, EmailStr
 
+from src.common import dependencies as common_deps
 from src.common import schemas as common_schemas
 from src.emails import dependencies as emails_deps
 
@@ -26,7 +27,7 @@ class IEmail(BaseModel, ABC):
     def create(
         cls,
         user: common_schemas.User,
-        event_message: emails_deps.EventMessageType | None,
+        event_message: common_deps.EventMessage | None,
     ) -> Self:
         raise NotImplementedError
 
@@ -39,7 +40,7 @@ class WelcomeEmail(IEmail):
     def create(
         cls,
         user: common_schemas.User,
-        event_message: emails_deps.EventMessageType | None = None,
+        event_message: common_deps.EventMessage | None,
     ) -> Self:
         return cls(
             email_to=user.email,
@@ -68,7 +69,3 @@ class WeeklyUpdateEmail(IEmail):
         raise TypeError(
             f"`event_message` arg has incorrect type, should be {type(cls)}"
         )
-
-
-EmailType = TypeVar("EmailType", bound=IEmail)
-EmailContentType = TypeVar("EmailContentType", bound=BaseModel)
