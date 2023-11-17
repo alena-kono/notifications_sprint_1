@@ -286,6 +286,7 @@ async def test_signin_user_invalid(
                 "password": "Ab1234567!",
                 "first_name": "adam",
                 "last_name": "smith",
+                "email": "test@mail.com",
             },
             HTTPStatus.OK,
             {
@@ -293,6 +294,7 @@ async def test_signin_user_invalid(
                 "first_name": "adam",
                 "last_name": "smith",
                 "permissions": [],
+                "email": "test@mail.com",
             },
         ),
         (
@@ -302,6 +304,7 @@ async def test_signin_user_invalid(
                 "password": "$ecretAb1",
                 "first_name": "ann",
                 "last_name": "green",
+                "email": "test@mail.com",
             },
             HTTPStatus.OK,
             {
@@ -309,6 +312,7 @@ async def test_signin_user_invalid(
                 "first_name": "ann",
                 "last_name": "green",
                 "permissions": [],
+                "email": "test@mail.com",
             },
         ),
     ],
@@ -337,6 +341,7 @@ async def test_signup_user_does_not_exist(
         "first_name",
         "last_name",
         "permissions",
+        "email",
     ]
     assert data["username"] == expected_data["username"]
     assert data["first_name"] == expected_data["first_name"]

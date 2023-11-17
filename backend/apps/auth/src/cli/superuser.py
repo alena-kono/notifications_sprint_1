@@ -28,6 +28,7 @@ async def create_user_with_internal_permissions(
             password=user.password,
             first_name=user.first_name,
             last_name=user.last_name,
+            email=user.email,
         )
         all_permissions_db = await permission_service.create_internal_permissions()
 

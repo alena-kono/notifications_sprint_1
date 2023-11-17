@@ -100,6 +100,7 @@ class SocialAccountService(ISocialAccountService):
                 # Generate a random password, so user could change it in the future
                 user = await self.user_service.create_user(
                     username=user_info.email,
+                    email=user_info.email,
                     password=await self.user_service.generate_random_password(),
                     first_name="",
                     last_name="",

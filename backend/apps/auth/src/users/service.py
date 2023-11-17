@@ -112,6 +112,7 @@ class UserService(IUserService):
             password=user.password,
             first_name=user.first_name,
             last_name=user.last_name,
+            email=user.email,
         )
 
     async def signin(
@@ -162,7 +163,12 @@ class UserService(IUserService):
         return await self.log_repository.get_user_signin_history(user_id)
 
     async def create_user(
-        self, username: str, first_name: str, last_name: str, password: str
+        self,
+        username: str,
+        first_name: str,
+        last_name: str,
+        password: str,
+        email: str | None = None,
     ) -> users_schemas.User:
         if await self.get_by_username(username=username):
             raise UserUsernameExistsError
@@ -171,6 +177,7 @@ class UserService(IUserService):
             password=password,
             first_name=first_name,
             last_name=last_name,
+            email=email,
         )
 
     async def change_user_password(

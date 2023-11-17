@@ -1,6 +1,8 @@
 from ipaddress import IPv4Address
 from uuid import UUID
 
+from pydantic import EmailStr
+
 from src.common import schemas as common_schemas
 
 
@@ -9,6 +11,7 @@ class User(common_schemas.UUIDSchemaMixin):
     first_name: str
     last_name: str
     permissions: list[str]
+    email: EmailStr | None = None
 
 
 class UserLoginRecord(

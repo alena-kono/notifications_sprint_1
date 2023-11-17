@@ -16,6 +16,7 @@ def create_superuser(
     username: Annotated[str, typer.Option()],
     first_name: Annotated[str, typer.Option()],
     last_name: Annotated[str, typer.Option()],
+    email: Annotated[str, typer.Option()] | None = None,
 ) -> None:
     password = typer.prompt(msg.ENTER_PASSWORD, hide_input=True)
     confirmed_password = typer.prompt(msg.CONFIRM_PASSWORD, hide_input=True)
@@ -26,6 +27,7 @@ def create_superuser(
     try:
         validated_user = auth_depends.UserSignUp(
             username=username,
+            email=email,
             first_name=first_name,
             last_name=last_name,
             password=confirmed_password,

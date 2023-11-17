@@ -53,6 +53,7 @@ async def test_get_user_by_id(db_session: AsyncSession, client: AsyncClient) -> 
         "first_name": "adam",
         "last_name": "smith",
         "permissions": ["user_read"],
+        "email": None,
     }
 
     response_not_found = await client.get(
