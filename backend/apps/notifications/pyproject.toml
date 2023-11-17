@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["Alena Konovalova <alena.kono@fastmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.11"
+pydantic-settings = "^2.0.3"
+structlog = "^23.2.0"
+faststream = {extras = ["kafka", "rabbit"], version = "^0.2.13"}
+pydantic = {extras = ["email"], version = "^2.5.1"}
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+exclude = [
+    ".git",
+    "docs",
+    "build",
+    "dist",
+    "venv"
+]
+line-length = 88
+target-version = "py311"
+fixable = ["ALL"]
+
+[tool.ruff.isort]
+lines-after-imports = 2
+lines-between-types = 1
+known-first-party = ["src"]
+
+[tool.mypy]
+files = "src/"
+ignore_missing_imports = "True"
+warn_no_return = "False"
+strict_optional = "True"
