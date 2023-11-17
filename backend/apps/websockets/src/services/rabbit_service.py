@@ -1,6 +1,7 @@
 import asyncio
 
 from fastapi import Depends
+
 from src.queue_router.common import get_router
 from src.queue_router.interface import IRouter
 from src.schemas.in_events import InLikeEventSchema
@@ -23,7 +24,6 @@ class RabbitMQService(IRabbitMQService):
             # the user is not connected to the current websocket
             # server, so we can just ignore the event
             return None
-
         tasks = [websocket.send_json(out_event) for websocket in websockets]
         await asyncio.gather(*tasks)
 
