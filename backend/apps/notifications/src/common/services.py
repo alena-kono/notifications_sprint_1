@@ -45,10 +45,6 @@ class INotificationService(ABC):
     async def handle_event(self, event):
         ...
 
-    @abstractmethod
-    async def _get_users(self, users_id: list[str]) -> list[common_schemas.User]:
-        ...
-
 
 class NotificationService(INotificationService):
     def __init__(self, user_service: IUserService) -> None:
@@ -56,9 +52,6 @@ class NotificationService(INotificationService):
 
     async def handle_event(self, event):
         ...
-
-    async def _get_users(self, users_ids: list[str]) -> list[common_schemas.User]:
-        return await self.user_service.get_users(users_ids=users_ids)
 
 
 def get_user_service() -> IUserService:

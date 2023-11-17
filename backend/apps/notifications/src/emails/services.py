@@ -41,7 +41,9 @@ class EmailNotificationService(NotificationService):
         msg_context: KafkaMessage,
     ) -> None:
         # TODO: Implement real handling, below is a toy implementation
-        users = await self._get_users(users_ids=[msg.user_id for msg in event_messages])
+        users = await self.user_service.get_users(
+            users_ids=[msg.user_id for msg in event_messages]
+        )
         emails = []
         for msg in event_messages:
             for user in users:
