@@ -1,7 +1,4 @@
-from logging import config as logging_config
-
 import structlog
-
 from faststream import Depends
 from faststream.kafka import KafkaRouter
 from faststream.kafka.annotations import KafkaMessage
@@ -13,13 +10,8 @@ from src.emails.services import (
     email_service_factory,
 )
 from src.settings.app import get_app_settings
-from src.settings.logging import configure_logger
-
 
 settings = get_app_settings()
-
-logging_config.dictConfig(settings.logging.config)
-configure_logger(enable_async_logger=True)
 
 logger = structlog.get_logger()
 
