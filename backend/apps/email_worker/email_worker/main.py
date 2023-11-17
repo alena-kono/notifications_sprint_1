@@ -28,9 +28,6 @@ async def on_shutdown() -> None:
     ...
 
 
-
-
-
 broker.include_router(router)
 
 if __name__ == "__main__":
