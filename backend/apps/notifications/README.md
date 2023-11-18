@@ -13,8 +13,9 @@
     poetry shell
     poetry install
     ```
-4. Run Notifications service:
+4. Run `notifications` service:
     ``` bash
     # under the poetry virtual env
     python -m src.main
     ```
+5. Run `auth` service following [the documentation](../auth/README.md).
