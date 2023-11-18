@@ -1,7 +1,6 @@
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from src.common import models
 from src.common.database import Base
 from src.social.models import SocialAccount  # noqa: F401
@@ -12,6 +11,7 @@ class User(models.UUIDMixin, models.TimeStampedMixin, Base):
 
     username: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(50))
 

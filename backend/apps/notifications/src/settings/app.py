@@ -3,6 +3,7 @@ from functools import lru_cache
 import pydantic
 
 from src.settings.base import BaseAppSettings
+from src.settings.integration import IntegrationSettings
 from src.settings.kafka import KafkaSettings
 from src.settings.logging import LoggingSettings
 from src.settings.notification import NotificationSettings
@@ -16,6 +17,7 @@ class AppSettings(BaseAppSettings):
     service: ServiceSettings = ServiceSettings()
     logging: LoggingSettings = LoggingSettings()
     notification: NotificationSettings = NotificationSettings()
+    integration: IntegrationSettings = IntegrationSettings()
     kafka: KafkaSettings = KafkaSettings()
     rabbitmq: RabbitMqSettings = RabbitMqSettings()
 

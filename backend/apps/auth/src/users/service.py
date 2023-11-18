@@ -40,6 +40,10 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
+    async def get_users_by_ids(self, users_ids: list[UUID]) -> list[users_schemas.User]:
+        ...
+
+    @abstractmethod
     async def get_user_history(
         self, user_id: UUID
     ) -> Page[users_schemas.UserLoginRecord]:
@@ -112,6 +116,7 @@ class UserService(IUserService):
             password=user.password,
             first_name=user.first_name,
             last_name=user.last_name,
+            email=user.email,
         )
 
     async def signin(
@@ -154,6 +159,9 @@ class UserService(IUserService):
             return user
         raise UserDoesNotExistError(resource_id=user_id)
 
+    async def get_users_by_ids(self, users_ids: list[UUID]) -> list[users_schemas.User]:
+        return await self.user_repository.get_by_ids(ids=users_ids)
+
     async def get_user_history(
         self, user_id: UUID
     ) -> Page[users_schemas.UserLoginRecord]:
@@ -162,7 +170,12 @@ class UserService(IUserService):
         return await self.log_repository.get_user_signin_history(user_id)
 
     async def create_user(
-        self, username: str, first_name: str, last_name: str, password: str
+        self,
+        username: str,
+        first_name: str,
+        last_name: str,
+        password: str,
+        email: str | None = None,
     ) -> users_schemas.User:
         if await self.get_by_username(username=username):
             raise UserUsernameExistsError
@@ -171,6 +184,7 @@ class UserService(IUserService):
             password=password,
             first_name=first_name,
             last_name=last_name,
+            email=email,
         )
 
     async def change_user_password(

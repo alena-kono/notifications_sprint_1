@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel, Field, IPvAnyAddress
+from pydantic import BaseModel, EmailStr, Field, IPvAnyAddress
 from redis.asyncio import Redis
 from src.auth.exceptions import InvalidAccessTokenError, InvalidRefreshTokenError
 from src.auth.jwt import schemas as jwt_schemas
@@ -52,6 +52,7 @@ class UserSignUp(BaseModel):
         max_length=users_settings.name_max_length,
         regex=users_settings.name_regex,
     )
+    email: EmailStr | None = None
 
 
 class AccessToken(BaseModel):
