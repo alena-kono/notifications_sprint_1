@@ -2,7 +2,6 @@ from ipaddress import IPv4Address
 from uuid import UUID
 
 from pydantic import EmailStr
-
 from src.common import schemas as common_schemas
 
 

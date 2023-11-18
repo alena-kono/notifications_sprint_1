@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi_limiter.depends import RateLimiter
 from fastapi_pagination import Page
 from src.auth.jwt import schemas as jwt_schemas
@@ -74,6 +74,35 @@ async def get_user(
     ],
 ) -> users_schemas.User:
     return await service.get_user_by_id(user_id)
+
+
+@router.get(
+    path="",
+    response_model=list[users_schemas.User],
+    summary="",
+    description="",
+    response_description="",
+)
+async def get_users(
+    rate_limiter: Annotated[
+        RateLimiter,
+        Depends(
+            RateLimiter(
+                times=rl_settings.STANDARD_LIMIT.times,
+                seconds=rl_settings.STANDARD_LIMIT.seconds,
+            )
+        ),
+    ],
+    service: Annotated[IUserService, Depends(get_user_service)],
+    _: Annotated[
+        jwt_schemas.JWTDecoded,
+        Depends(
+            check_permission(permissions_enums.ServiceInternalPermission.user_read)
+        ),
+    ],
+    ids: list[UUID] = Query(title="User IDs", description="List of user IDs to filter"),
+) -> list[users_schemas.User]:
+    return await service.get_users_by_ids(users_ids=ids)
 
 
 @router.get(

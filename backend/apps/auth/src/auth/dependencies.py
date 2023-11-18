@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel, Field, IPvAnyAddress, EmailStr
+from pydantic import BaseModel, EmailStr, Field, IPvAnyAddress
 from redis.asyncio import Redis
 from src.auth.exceptions import InvalidAccessTokenError, InvalidRefreshTokenError
 from src.auth.jwt import schemas as jwt_schemas

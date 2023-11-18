@@ -8,6 +8,7 @@ from src.permissions import models as permissions_models
 from src.permissions.enums import ServiceInternalPermission
 from src.users import models as users_models
 from src.users.repositories import PostgresUserRepository
+from uuid import UUID
 
 pytestmark = pytest.mark.asyncio
 
@@ -82,6 +83,51 @@ async def test_filter_by_user(
 
     repo = PostgresUserRepository(db_session)
     users = await repo.filter_by(**filter_kwargs)
+
+    assert users is not None
+    assert isinstance(users, list)
+    assert len(users) == expected_results_len
+
+
+@pytest.mark.parametrize(
+    "users_ids, expected_results_len",
+    [
+        (
+            [
+                UUID("0a22ed7d-d37a-4ddd-a528-af7562e4298d"),
+                UUID("236495b8-b376-49e1-a3b7-96bd9c3addd3"),
+            ],
+            2,
+        ),
+        ([UUID("0a22ed7d-d37a-4ddd-a528-af7562e4298d")], 1),
+        ([UUID("236495b8-b376-49e1-a3b7-96bd9c3addd3")], 1),
+        ([UUID("556495b8-b888-11e7-a3b7-22bd9c3abbb1")], 0),
+    ],
+)
+async def test_get_by_ids(
+    db_session: AsyncSession,
+    users_ids: list[UUID],
+    expected_results_len: int,
+) -> None:
+    user_0 = users_models.User(
+        id=UUID("0a22ed7d-d37a-4ddd-a528-af7562e4298d"),
+        username="test_name",
+        password="123qwe",
+        first_name="adam",
+        last_name="smith",
+    )
+    user_1 = users_models.User(
+        id=UUID("236495b8-b376-49e1-a3b7-96bd9c3addd3"),
+        username="common_name",
+        password="secret",
+        first_name="adam",
+        last_name="johnson",
+    )
+    db_session.add_all([user_0, user_1])
+    await db_session.commit()
+
+    repo = PostgresUserRepository(db_session)
+    users = await repo.get_by_ids(ids=users_ids)
 
     assert users is not None
     assert isinstance(users, list)

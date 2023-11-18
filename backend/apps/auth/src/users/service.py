@@ -40,6 +40,10 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
+    async def get_users_by_ids(self, users_ids: list[UUID]) -> list[users_schemas.User]:
+        ...
+
+    @abstractmethod
     async def get_user_history(
         self, user_id: UUID
     ) -> Page[users_schemas.UserLoginRecord]:
@@ -154,6 +158,9 @@ class UserService(IUserService):
         if user := await self.user_repository.get(user_id):
             return user
         raise UserDoesNotExistError(resource_id=user_id)
+
+    async def get_users_by_ids(self, users_ids: list[UUID]) -> list[users_schemas.User]:
+        return await self.user_repository.get_by_ids(ids=users_ids)
 
     async def get_user_history(
         self, user_id: UUID

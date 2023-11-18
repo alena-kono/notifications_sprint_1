@@ -35,6 +35,10 @@ class UserRepository(ABC):
         ...
 
     @abstractmethod
+    async def get_by_ids(self, ids: list[UUID]) -> list[users_schemas.User]:
+        ...
+
+    @abstractmethod
     async def filter_by(self, **kwargs: Any) -> list[users_schemas.User]:
         ...
 
@@ -163,6 +167,34 @@ class PostgresUserRepository(UserRepository):
         )
 
         return user_schema
+
+    async def get_by_ids(self, ids: list[UUID]) -> list[users_schemas.User]:
+        stmt = (
+            select(users_models.User)
+            .options(
+                joinedload(users_models.User.permissions).joinedload(
+                    permissions_models.UsersPermissions.permission
+                )
+            )
+            .where(users_models.User.id.in_(ids))
+        )
+        result = await self.async_session.execute(stmt)
+        users = result.unique().scalars().all()
+
+        return [
+            users_schemas.User(
+                id=user.id,
+                username=user.username,
+                email=user.email,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                permissions=[
+                    user_permission.permission.name
+                    for user_permission in user.permissions
+                ],
+            )
+            for user in users
+        ]
 
     async def filter_by(self, **kwargs: Any) -> list[users_schemas.User]:
         stmt = (
