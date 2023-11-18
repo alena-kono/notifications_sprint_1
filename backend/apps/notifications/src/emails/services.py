@@ -8,12 +8,11 @@ from faststream.kafka.annotations import KafkaMessage
 from src.common import dependencies as common_deps
 from src.common.services import (
     NotificationService,
-    IUserService,
-    get_user_service,
     IMessageBrokerService,
     get_message_broker_service,
 )
 from src.emails import schemas as emails_schemas
+from src.users.services import IUserService, get_user_service
 
 logger = structlog.get_logger()
 
@@ -40,19 +39,34 @@ class EmailNotificationService(NotificationService):
         queue_name: str,
         msg_context: KafkaMessage,
     ) -> None:
-        # TODO: Implement real handling, below is a toy implementation
-        users = await self.user_service.get_users(
-            users_ids=[msg.user_id for msg in event_messages]
-        )
-        emails = []
-        for msg in event_messages:
-            for user in users:
-                if user.id == msg.user_id:
-                    emails.append(self.schema_cls.create(user=user, event_message=msg))
+        event_users_ids = [msg.user_id for msg in event_messages]
 
-        await self.message_broker_service.publish(
-            message_payload=emails, queue_name=queue_name
-        )
+        users_existing = await self.user_service.get_users(users_ids=event_users_ids)
+        users_existing_map = {str(user.id): user for user in users_existing}
+
+        emails = []
+        event_messages_non_existing_users = []
+
+        if users_existing:
+            for msg in event_messages:
+                # TODO: Check user notification preferences
+                if user := users_existing_map.get(msg.user_id):
+                    emails.append(self.schema_cls.create(user=user, event_message=msg))
+                else:
+                    event_messages_non_existing_users.append(msg)
+
+            await self.message_broker_service.publish(
+                message_payload=emails, queue_name=queue_name
+            )
+
+            if event_messages_non_existing_users:
+                await logger.info(
+                    "There are event messages related to non-existing users",
+                    event_messages=event_messages_non_existing_users,
+                )
+
+        else:
+            await logger.info("Users do not exist", users_ids=event_users_ids)
 
         await msg_context.ack()
         await logger.info(

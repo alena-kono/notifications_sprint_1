@@ -1,22 +1,18 @@
 import enum
-
 from typing import Callable, Type
 
 import structlog
-
 from faststream import Depends
 from faststream.kafka.annotations import KafkaMessage
 
 from src.common import dependencies as common_deps
 from src.common.services import (
     IMessageBrokerService,
-    IUserService,
     NotificationService,
     get_message_broker_service,
-    get_user_service,
 )
+from src.users.services import IUserService, get_user_service
 from src.websockets import schemas as ws_schemas
-
 
 logger = structlog.get_logger()
 
@@ -42,20 +38,34 @@ class WebsocketNotificationService(NotificationService):
         queue_name: str,
         msg_context: KafkaMessage,
     ) -> None:
-        # TODO: Implement real handling, below is a toy implementation
-        users = await self.user_service.get_users(
-            users_ids=[msg.user_id for msg in event_messages]
-        )
-        ws_push_notifications = []
-        for msg in event_messages:
-            for user in users:
-                if user.id == msg.user_id:
-                    ws_push_notifications.append(self.schema_cls(user_id=user.id))
+        event_users_ids = [msg.user_id for msg in event_messages]
 
-        for push_msg in ws_push_notifications:
-            await self.message_broker_service.publish(
-                message_payload=push_msg, queue_name=queue_name
-            )
+        users_existing = await self.user_service.get_users(users_ids=event_users_ids)
+        users_existing_map = {str(user.id): user for user in users_existing}
+
+        ws_push_notifications = []
+        event_messages_non_existing_users = []
+
+        if users_existing:
+            for msg in event_messages:
+                # TODO: Check user notification preferences
+                if users_existing_map.get(msg.user_id):
+                    ws_push_notifications.append(self.schema_cls(user_id=msg.user_id))
+                else:
+                    event_messages_non_existing_users.append(msg)
+
+            for push_msg in ws_push_notifications:
+                await self.message_broker_service.publish(
+                    message_payload=push_msg, queue_name=queue_name
+                )
+
+            if event_messages_non_existing_users:
+                await logger.info(
+                    "There are event messages related to non-existing users",
+                    event_messages=event_messages_non_existing_users,
+                )
+        else:
+            await logger.info("Users do not exist", users_ids=event_users_ids)
 
         await msg_context.ack()
         await logger.info(
