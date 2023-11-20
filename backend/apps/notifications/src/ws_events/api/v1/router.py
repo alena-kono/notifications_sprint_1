@@ -15,7 +15,7 @@ router = KafkaRouter(bootstrap_servers=settings.kafka.dsn)
 
 
 @router.subscriber(
-    "ws-like-event",
+    "likes",
     group_id="ws",
     batch=False,
     auto_commit=False,
