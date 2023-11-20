@@ -33,7 +33,6 @@ logger = structlog.get_logger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    databases.redis = aioredis.from_url(settings.redis.dsn, encoding="utf-8")
     databases.producer = AIOKafkaProducer(
         bootstrap_servers=settings.kafka.dsn,
         compression_type="gzip",
@@ -43,9 +42,10 @@ async def lifespan(app: FastAPI):
         request_timeout_ms=10000,
         retry_backoff_ms=1000,
     )
-    databases.mongodb = AsyncIOMotorClient(settings.mongo.dsn)
-
     await databases.producer.start()
+
+    databases.redis = aioredis.from_url(settings.redis.dsn, encoding="utf-8")
+    databases.mongodb = AsyncIOMotorClient(settings.mongo.dsn)
     await FastAPILimiter.init(databases.redis)
 
     yield

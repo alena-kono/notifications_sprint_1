@@ -1,39 +1,40 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Coroutine
+
 import structlog
-from faststream import Depends
-from faststream.kafka.annotations import KafkaMessage
+
+from fastapi import Depends
 from faststream.rabbit import RabbitBroker
 
-from src.common import dependencies as common_deps
-from src.users.services import IUserService
+from src.common import schemas as common_schemas
 from src.common.brokers import get_rabbit_broker
+from src.common.client import APIClient, get_api_client
+
 
 logger = structlog.get_logger()
 
 
-class INotificationService(ABC):
+class IUserService(ABC):
     @abstractmethod
-    async def handle_events(
+    async def get_users(
         self,
-        event_messages: list[common_deps.EventMessage],
-        queue_name: str,
-        msg_context: KafkaMessage,
-    ) -> None:
+        users_ids: list[str],
+    ) -> list[common_schemas.User]:
         ...
 
 
-class NotificationService(INotificationService):
-    def __init__(self, user_service: IUserService) -> None:
-        self.user_service = user_service
+class UserService(IUserService):
+    def __init__(self, api_client: APIClient) -> None:
+        self.api_client = api_client
 
-    async def handle_events(
-        self,
-        event_messages: list[common_deps.EventMessage],
-        queue_name: str,
-        msg_context: KafkaMessage,
-    ) -> None:
-        ...
+    async def get_users(
+        self, users_ids: list[str]
+    ) -> [Coroutine, None, list[common_schemas.User]]:
+        ids_query = "&".join([f"ids={user_id}" for user_id in users_ids])
+
+        response_data = await self.api_client.get(path=f"?{ids_query}")
+
+        return [common_schemas.User(**user) for user in response_data]
 
 
 class IMessageBrokerService(ABC):
@@ -63,3 +64,9 @@ def get_message_broker_service(
     broker: RabbitBroker = Depends(get_rabbit_broker)
 ) -> IMessageBrokerService:
     return RabbitMQMessageBrokerService(broker=broker)
+
+
+def get_user_service(
+    api_client: APIClient = Depends(get_api_client),
+) -> IUserService:
+    return UserService(api_client=api_client)

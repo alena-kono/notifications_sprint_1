@@ -6,6 +6,9 @@ from src.settings.base import BaseAppSettings
 class ServiceSettings(BaseAppSettings):
     model_config = SettingsConfigDict(env_prefix="service_")
 
+    host: str
+    port: int
+
     name: str
     debug: bool = False
 

@@ -1,71 +1,27 @@
-from abc import ABC, abstractmethod
-from typing import Self
-
 from pydantic import BaseModel, EmailStr
 
-from src.common import dependencies as common_deps
-from src.common import schemas as common_schemas
-from src.emails import dependencies as emails_deps
+
+class InputEvent(BaseModel):
+    user_id: str
 
 
-class WelcomeContent(BaseModel):
-    username: str
+class InputWelcomeEvent(InputEvent):
+    ...
 
 
-class WeeklyUpdateContent(BaseModel):
-    username: str
+class InputWeeklyUpdateEvent(InputEvent):
     watched_films_count: int
 
 
-class IEmail(BaseModel, ABC):
-    email_to: EmailStr
+class InputManagerEvent(InputEvent):
     email_from: EmailStr
-    content: dict
-
-    @classmethod
-    @abstractmethod
-    def create(
-        cls,
-        user: common_schemas.User,
-        event_message: common_deps.EventMessage | None,
-    ) -> Self:
-        raise NotImplementedError
+    subject: str
+    body: str
 
 
-class WelcomeEmail(IEmail):
+class EmailMessage(BaseModel):
+    user_id: str
     email_from: EmailStr = "welcome@cinema-club.com"
-    content: WelcomeContent
-
-    @classmethod
-    def create(
-        cls,
-        user: common_schemas.User,
-        event_message: common_deps.EventMessage | None,
-    ) -> Self:
-        return cls(
-            email_to=user.email,
-            content=WelcomeContent(username=user.username),
-        )
-
-
-class WeeklyUpdateEmail(IEmail):
-    email_from: EmailStr = "no-reply@cinema-club.com"
-    content: WeeklyUpdateContent
-
-    @classmethod
-    def create(
-        cls,
-        user: common_schemas.User,
-        event_message: emails_deps.WeeklyUpdateMessage | None,
-    ) -> Self:
-        if isinstance(event_message, emails_deps.WeeklyUpdateMessage):
-            return cls(
-                email_to=user.email,
-                content=WeeklyUpdateContent(
-                    username=user.username,
-                    watched_films_count=event_message.watched_films_count,
-                ),
-            )
-        raise TypeError(
-            f"`event_message` arg has incorrect type, should be {type(cls)}"
-        )
+    email_to: EmailStr
+    subject: str
+    body: str

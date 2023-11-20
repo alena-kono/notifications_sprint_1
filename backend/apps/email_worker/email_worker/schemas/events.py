@@ -1,20 +1,9 @@
-from typing import Generic, TypeVar
-
-from pydantic import BaseModel
-
-SchemaType = TypeVar("SchemaType", bound=BaseModel)
+from pydantic import BaseModel, EmailStr
 
 
-class EventSchema(BaseModel, Generic[SchemaType]):
-    email_from: str
-    email_to: str
-    content: SchemaType
-
-
-class WelcomeContentSchema(BaseModel):
-    username: str
-
-
-class WeeklyUpdateContentSchema(BaseModel):
-    username: str
-    watched_films_count: int
+class EmailEvent(BaseModel):
+    user_id: str
+    email_from: EmailStr
+    email_to: EmailStr
+    subject: str
+    body: str
