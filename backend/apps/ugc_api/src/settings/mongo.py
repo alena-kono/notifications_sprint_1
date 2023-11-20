@@ -1,4 +1,5 @@
 import pydantic
+
 from src.settings.base import BaseAppSettings
 
 

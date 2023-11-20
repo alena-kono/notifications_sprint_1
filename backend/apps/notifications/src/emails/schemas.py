@@ -13,8 +13,9 @@ class InputWeeklyUpdateEvent(InputEvent):
     watched_films_count: int
 
 
-class InputManagerEvent(InputEvent):
+class InputManagerEvent(BaseModel):
     email_from: EmailStr
+    users_ids: list[str]
     subject: str
     body: str
 

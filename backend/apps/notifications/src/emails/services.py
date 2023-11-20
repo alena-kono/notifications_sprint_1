@@ -1,6 +1,7 @@
 import asyncio
 import enum
 
+from abc import ABC, abstractmethod
 from typing import Any, Callable, Generic, Type, TypeVar
 
 import structlog
@@ -38,12 +39,27 @@ class EmailServiceType(enum.StrEnum):
     manager_email = enum.auto()
 
 
-class EmailService(Generic[EventType]):
+class IEmailService(ABC, Generic[EventType]):
+    @abstractmethod
+    def __init__(
+        self,
+        repository: IRepository,
+        user_service: IUserService,
+        message_broker_service: IMessageBrokerService,
+    ) -> None:
+        ...
+
+    @abstractmethod
+    async def handle_events(self, event_messages: EventType) -> None:
+        ...
+
+
+class EmailService(IEmailService, Generic[EventType]):
     queue_name: str = settings.notification.email_queue
+    collection_name: str = "notifications"
     email_subject: str
     email_from: str
     template_name: str
-    collection_name: str = "notifications"
 
     def __init__(
         self,
@@ -90,7 +106,6 @@ class EmailService(Generic[EventType]):
 
         return self.build(event_msg=event, user=user[0])
 
-    # TODO: transaction
     async def send(self, email: EmailMessage) -> None:
         await asyncio.gather(
             self.repository.insert(
@@ -108,10 +123,7 @@ class EmailService(Generic[EventType]):
         if email := await self.transform(event=event_messages):
             return await self.send(email=email)
 
-        await logger.info(
-            "No emails to send",
-            message_id=msg_context.message_id,
-        )
+        await logger.info("No emails to send")
 
 
 class WelcomeEmailService(EmailService[InputWelcomeEvent]):
@@ -143,14 +155,26 @@ class WeeklyUpdateEmailService(EmailService[InputWeeklyUpdateEvent]):
         }
 
 
-class ManagerEmailService(EmailService[InputManagerEvent]):
-    queue_name = "email-manager-queue"
+class ManagerEmailService(IEmailService):
+    queue_name: str = settings.notification.email_queue
+    collection_name: str = "notifications"
+
+    def __init__(
+        self,
+        repository: IRepository,
+        user_service: IUserService,
+        message_broker_service: IMessageBrokerService,
+    ) -> None:
+        self.repository = repository
+        self.user_service = user_service
+        self.message_broker_service = message_broker_service
 
     def build(self, event_msg: InputManagerEvent, user: User) -> EmailMessage:
         if not user.email:
             raise ValueError("User has not email")
 
         message = EmailMessage(
+            user_id=str(user.id),
             email_from=event_msg.email_from,
             email_to=user.email,
             subject=event_msg.subject,
@@ -159,11 +183,43 @@ class ManagerEmailService(EmailService[InputManagerEvent]):
 
         return message
 
+    async def transform(self, event: InputManagerEvent) -> list[EmailMessage]:
+        users = await self.user_service.get_users(users_ids=event.users_ids)
+
+        if not users:
+            raise ValueError("There is no user with this id")
+
+        return [self.build(event_msg=event, user=user) for user in users]
+
+    async def send_batch(self, emails: list[EmailMessage]) -> None:
+        tasks = [
+            self.message_broker_service.publish(
+                message_payload=email, queue_name=self.queue_name
+            )
+            for email in emails
+        ]
+
+        await asyncio.gather(
+            self.repository.insert_many(
+                data=[email.model_dump() for email in emails],
+                collection=self.collection_name,
+            ),
+            *tasks,
+        )
+
+    async def handle_events(self, event_messages: InputManagerEvent) -> None:
+        await logger.info("Message has been consumed from kafka")
+
+        if emails := await self.transform(event=event_messages):
+            return await self.send_batch(emails=emails)
+
+        await logger.info("No emails to send")
+
 
 def email_kafka_service_factory(
     service_schema_type: EmailServiceType
-) -> Callable[[], EmailService]:
-    schemas_mapping: dict[EmailServiceType, Type[EmailService]] = {
+) -> Callable[..., IEmailService]:
+    schemas_mapping: dict[EmailServiceType, Type[IEmailService]] = {
         EmailServiceType.welcome: WelcomeEmailService,
         EmailServiceType.weekly_update: WeeklyUpdateEmailService,
         EmailServiceType.manager_email: ManagerEmailService,
@@ -173,7 +229,7 @@ def email_kafka_service_factory(
         user_service: UserServiceType,
         message_broker_service: MessageBrokerServiceType,
         repository: RepositoryType,
-    ) -> EmailService:
+    ) -> IEmailService:
         if service_schema_type in schemas_mapping:
             return schemas_mapping[service_schema_type](
                 user_service=user_service,

@@ -8,23 +8,23 @@ from src.emails.schemas import (
     InputWelcomeEvent,
 )
 from src.emails.services import (
-    EmailService,
     EmailServiceType,
+    IEmailService,
     email_kafka_service_factory,
 )
 
 
 WelcomeEmailService = Annotated[
-    EmailService[InputWelcomeEvent],
+    IEmailService[InputWelcomeEvent],
     Depends(email_kafka_service_factory(EmailServiceType.welcome)),
 ]
 
 WeeklyUpdateEmailService = Annotated[
-    EmailService[InputWeeklyUpdateEvent],
+    IEmailService[InputWeeklyUpdateEvent],
     Depends(email_kafka_service_factory(EmailServiceType.weekly_update)),
 ]
 
 ManagerEmailService = Annotated[
-    EmailService[InputManagerEvent],
+    IEmailService[InputManagerEvent],
     Depends(email_kafka_service_factory(EmailServiceType.manager_email)),
 ]
