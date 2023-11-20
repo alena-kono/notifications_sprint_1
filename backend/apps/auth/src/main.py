@@ -5,6 +5,7 @@ from typing import Awaitable, Callable
 import sentry_sdk
 import structlog
 import uvicorn
+from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse, Response
 from fastapi_cache import FastAPICache
@@ -34,6 +35,16 @@ logger = structlog.get_logger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    database.producer = AIOKafkaProducer(
+        bootstrap_servers=settings.kafka.dsn,
+        compression_type="gzip",
+        enable_idempotence=True,
+        max_batch_size=32768,
+        linger_ms=1000,
+        request_timeout_ms=10000,
+        retry_backoff_ms=1000,
+    )
+    await database.producer.start()
     database.redis = aioredis.from_url(settings.redis.dsn, encoding="utf-8")
     FastAPICache.init(RedisBackend(database.redis), prefix="fastapi-cache")
     await FastAPILimiter.init(database.redis)

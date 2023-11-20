@@ -1,10 +1,12 @@
 from functools import lru_cache
 
 import pydantic
+
 from src.settings.auth import AuthSettings
 from src.settings.base import BaseAppSettings
 from src.settings.db import PostgresSettings, RedisSettings
 from src.settings.jaeger import JaegerSettings
+from src.settings.kafka import KafkaSettings
 from src.settings.logging import LoggingSettings
 from src.settings.rate_limiter import RateLimiterSettings
 from src.settings.sentry import SentrySettings
@@ -24,6 +26,7 @@ class AppSettings(BaseAppSettings):
     rate_limiter = RateLimiterSettings()
     jaeger = JaegerSettings()
     sentry = SentrySettings()
+    kafka = KafkaSettings()
 
 
 @lru_cache(maxsize=1)

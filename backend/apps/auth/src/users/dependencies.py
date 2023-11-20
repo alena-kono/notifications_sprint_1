@@ -3,8 +3,10 @@ from uuid import UUID
 
 from fastapi import Depends
 from pydantic import BaseModel
+
 from src.auth import dependencies as auth_depends
 from src.auth.jwt.backend import JWTAuthorizationBackend
+from src.common.message_queue import IMessageQueue, get_message_queue
 from src.users.repositories import (
     UserRepository,
     UserSignInHistoryRepository,
@@ -30,6 +32,7 @@ class PasswordChange(BaseModel):
 
 
 async def get_user_service(
+    message_queue: Annotated[IMessageQueue, Depends(get_message_queue)],
     user_repository: Annotated[UserRepository, Depends(get_user_repository)],
     log_repository: Annotated[
         UserSignInHistoryRepository, Depends(get_user_sign_in_history_repository)
@@ -39,6 +42,7 @@ async def get_user_service(
     ],
 ) -> IUserService:
     return UserService(
+        message_queue=message_queue,
         user_repository=user_repository,
         log_repository=log_repository,
         jwt_auth_backend=jwt_auth_backend,

@@ -1,3 +1,4 @@
+import json
 import logging
 import secrets
 from abc import ABC, abstractmethod
@@ -5,10 +6,12 @@ from uuid import UUID
 
 import sqlalchemy
 from fastapi_pagination import Page
+
 from src.auth import dependencies as auth_depends
 from src.auth.exceptions import UserInvalidCredentialsError, UserUsernameExistsError
 from src.auth.jwt import schemas as jwt_schemas
 from src.auth.jwt.backend import JWTAuthorizationBackend
+from src.common.message_queue import IMessageQueue
 from src.users import schemas as users_schemas
 from src.users.exceptions import (
     UserDoesNotExistError,
@@ -101,23 +104,32 @@ class IUserService(ABC):
 class UserService(IUserService):
     def __init__(
         self,
+        message_queue: IMessageQueue,
         user_repository: UserRepository,
         log_repository: UserSignInHistoryRepository,
         jwt_auth_backend: JWTAuthorizationBackend,
     ) -> None:
+        self.message_queue = message_queue
         self.user_repository = user_repository
         self.log_repository = log_repository
         self.jwt_auth_backend = jwt_auth_backend
 
     async def signup(self, user: auth_depends.UserSignUp) -> users_schemas.User:
         """Register a new user."""
-        return await self.create_user(
+        created_user = await self.create_user(
             username=user.username,
             password=user.password,
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,
         )
+
+        await self.message_queue.push(
+            topic="email-welcome-event",
+            message=json.dumps({"user_id": str(created_user.id)}).encode(),
+        )
+
+        return created_user
 
     async def signin(
         self,

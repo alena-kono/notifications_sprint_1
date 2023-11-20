@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
 
+from aiokafka import AIOKafkaProducer
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
+
 from src.settings.app import AppSettings
 
 
@@ -19,6 +21,14 @@ class Base(AsyncAttrs, DeclarativeBase):
 async_session: async_sessionmaker | None
 engine: None | AsyncEngine = None
 redis: None | Redis = None
+producer: None | AIOKafkaProducer = None
+
+
+def get_kafka_producer() -> AIOKafkaProducer:
+    if producer is None:
+        raise RuntimeError("Kafka producer has not been defined.")
+
+    return producer
 
 
 def init_database(settings: AppSettings) -> None:
