@@ -1,0 +1,53 @@
+2023-11-20 15:52:14,972 INFO     - email-welcome-event       | email | 9-9-170049 - Received
+2023-11-20 15:52:14,973 ERROR    - email-welcome-event       | email | 9-9-170049 - Error is occured. Pushing back to queue.
+2023-11-20 15:52:14,973 ERROR    - email-welcome-event       | email | 9-9-170049 - TypeError: 'list' object is not a mapping
+Traceback (most recent call last):
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/broker/handler.py", line 337, in consume
+    raise e
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/broker/handler.py", line 301, in consume
+    result = await cast(
+             ^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/broker/utils.py", line 103, in set_message_wrapper
+    return await func(message)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/kafka/broker.py", line 236, in process_wrapper
+    r = await self._execute_handler(func, message)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/broker/core/asyncronous.py", line 483, in _execute_handler
+    return await func(message)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/broker/core/asyncronous.py", line 408, in decode_wrapper
+    return await func(message)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/utils/functions.py", line 90, in to_async_wrapper
+    return await call_or_await(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/fast_depends/utils.py", line 38, in run_async
+    return await cast(Callable[P, Awaitable[T]], func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/broker/fastapi/route.py", line 241, in app
+    session = cls(fastapi_body, message.headers, message.path)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nikitazigman/Library/Caches/pypoetry/virtualenvs/src-xQeRLY9o-py3.11/lib/python3.11/site-packages/faststream/broker/fastapi/route.py", line 179, in __init__
+    self._query_params = {**self._body, **(path or {})}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not a mapping
+2023-11-20 15:52:14,976 INFO     - email-welcome-event       | email | 9-9-170049 - Processed
+Adding fetch request for partition TopicPartition(topic='email-welcome-event', partition=0) at offset 10
+<AIOKafkaConnection host=localhost port=9092> Request 163: FetchRequest_v4(replica_id=-1, max_wait_time=500, min_bytes=1, max_bytes=52428800, isolation_level=0, topics=[(topic='email-welcome-event', partitions=[(partition=0, offset=10, max_bytes=1048576)])])
+<AIOKafkaConnection host=localhost port=9092> Response 157: FetchResponse_v4(throttle_time_ms=0, topics=[(topics='ws-like-event', partitions=[(partition=0, error_code=0, highwater_offset=0, last_stable_offset=0, aborted_transactions=NULL, message_set=b'')])])
+Adding fetch request for partition TopicPartition(topic='ws-like-event', partition=0) at offset 0
+<AIOKafkaConnection host=localhost port=9092> Request 158: FetchRequest_v4(replica_id=-1, max_wait_time=500, min_bytes=1, max_bytes=52428800, isolation_level=0, topics=[(topic='ws-like-event', partitions=[(partition=0, offset=0, max_bytes=1048576)])])
+<AIOKafkaConnection host=localhost port=9092> Response 145: FetchResponse_v4(throttle_time_ms=0, topics=[(topics='email-manager-event', partitions=[(partition=0, error_code=0, highwater_offset=0, last_stable_offset=0, aborted_transactions=NULL, message_set=b'')])])
+<AIOKafkaConnection host=localhost port=9092> Response 152: FetchResponse_v4(throttle_time_ms=0, topics=[(topics='email-weekly-update-event', partitions=[(partition=0, error_code=0, highwater_offset=0, last_stable_offset=0, aborted_transactions=NULL, message_set=b'')])])
+Adding fetch request for partition TopicPartition(topic='email-manager-event', partition=0) at offset 0
+Adding fetch request for partition TopicPartition(topic='email-weekly-update-event', partition=0) at offset 0
+<AIOKafkaConnection host=localhost port=9092> Request 146: FetchRequest_v4(replica_id=-1, max_wait_time=500, min_bytes=1, max_bytes=52428800, isolation_level=0, topics=[(topic='email-manager-event', partitions=[(partition=0, offset=0, max_bytes=1048576)])])
+<AIOKafkaConnection host=localhost port=9092> Request 153: FetchRequest_v4(replica_id=-1, max_wait_time=500, min_bytes=1, max_bytes=52428800, isolation_level=0, topics=[(topic='email-weekly-update-event', partitions=[(partition=0, offset=0, max_bytes=1048576)])])
+<AIOKafkaConnection host=localhost port=9092> Response 163: FetchResponse_v4(throttle_time_ms=0, topics=[(topics='email-welcome-event', partitions=[(partition=0, error_code=0, highwater_offset=10, last_stable_offset=10, aborted_transactions=NULL, message_set=b'')])])
+Adding fetch request for partition TopicPartition(topic='email-welcome-event', partition=0) at offset 10
+<AIOKafkaConnection host=localhost port=9092> Request 164: FetchRequest_v4(replica_id=-1, max_wait_time=500, min_bytes=1, max_bytes=52428800, isolation_level=0, topics=[(topic='email-welcome-event', partitions=[(partition=0, offset=10, max_bytes=1048576)])])
+<AIOKafkaConnection host=localhost port=9092> Response 158: FetchResponse_v4(throttle_time_ms=0, topics=[(topics='ws-like-event', partitions=[(partition=0, error_code=0, highwater_offset=0, last_stable_offset=0, aborted_transactions=NULL, message_set=b'')])])
+Heartbeat: ws[11] faststream-0.2.13-d99d093d-aca9-4b5c-9864-461af06a4e3e
+<AIOKafkaConnection host=localhost port=9092> Request 30: HeartbeatRequest_v1(group='ws', generation_id=11, member_id='faststream-0.2.13-d99d093d-aca9-4b5c-9864-461af06a4e3e')
+Adding fetch request for pa

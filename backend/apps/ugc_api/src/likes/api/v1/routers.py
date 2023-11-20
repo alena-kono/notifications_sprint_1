@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import APIRouter
+
 from src.common.dependencies import RateLimiterType, UserToken
 from src.likes import schemas
 from src.likes.dependencies import LikeServiceType

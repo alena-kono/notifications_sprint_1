@@ -1,10 +1,30 @@
-from src.common import dependencies as common_deps
+from typing import Annotated
+
+from fastapi import Depends
+
+from src.emails.schemas import (
+    InputManagerEvent,
+    InputWeeklyUpdateEvent,
+    InputWelcomeEvent,
+)
+from src.emails.services import (
+    EmailServiceType,
+    IEmailService,
+    email_kafka_service_factory,
+)
 
 
-class WelcomeEventMessage(common_deps.EventMessage):
-    user_id: str
+WelcomeEmailService = Annotated[
+    IEmailService[InputWelcomeEvent],
+    Depends(email_kafka_service_factory(EmailServiceType.welcome)),
+]
 
+WeeklyUpdateEmailService = Annotated[
+    IEmailService[InputWeeklyUpdateEvent],
+    Depends(email_kafka_service_factory(EmailServiceType.weekly_update)),
+]
 
-class WeeklyUpdateMessage(common_deps.EventMessage):
-    user_id: str
-    watched_films_count: int
+ManagerEmailService = Annotated[
+    IEmailService[InputManagerEvent],
+    Depends(email_kafka_service_factory(EmailServiceType.manager_email)),
+]

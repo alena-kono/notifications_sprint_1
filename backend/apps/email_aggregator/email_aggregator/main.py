@@ -1,9 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
 
 from email_aggregator.settings.app import get_app_settings
-
 
 settings = get_app_settings()
 
@@ -16,7 +14,6 @@ app = FastAPI(
     description="Email aggregator",
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
-    default_response_class=ORJSONResponse,
     version="0.1.0",
 )
 
